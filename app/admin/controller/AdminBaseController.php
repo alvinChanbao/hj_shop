@@ -6,6 +6,7 @@ use think\Controller;
 
 class AdminBaseController extends Controller
 {
+    public $adminUser;
     /**
      * 前置方法
      * 获取默认主题
@@ -15,7 +16,8 @@ class AdminBaseController extends Controller
     protected $beforeActionList = [
         'getTheme',
         'getTmpl',
-        'isLogin'=>  ['except'=>'login']
+        'getAdminInfo',
+        'isLogin'=>  ['except'=>'login,loginPost']
     ];
 
     //获取主题路径
@@ -35,7 +37,8 @@ class AdminBaseController extends Controller
        $host = request()->server()['REQUEST_SCHEME'].'://'.request()->host();
        $tmpl =  $host.'/themes/'.ADMIN_THEME.'public';
        $arr = [
-           '__TMPL__'=> $tmpl
+           '__TMPL__'=> $tmpl,
+           '__STATIC__'=> $host.'/static'
        ];
         //重新渲染列表
        $this->view->config('tpl_replace_string',  $arr);
@@ -47,8 +50,16 @@ class AdminBaseController extends Controller
         $is_login = session('?admin_id');
         //没有登陆跳转到登陆页面
         if (!$is_login){
-            $this->redirect('admin/index/login');
+            $this->redirect('admin/public/login');
         }
+    }
+
+    //获取管理员用户信息
+    protected function getAdminInfo()
+    {
+        $adminUser = session('admin_user');
+        $this->adminUser = json_decode($adminUser,true);
+        $this->assign('adminUser',$this->adminUser);
     }
 
 }

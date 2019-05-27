@@ -26,14 +26,4 @@ class IndexController extends AdminBaseController
     {
         return $this->fetch();
     }
-
-    /*
-    * @Date：2019-05-23
-    * @Title: 用户登陆模块
-    * @Author：Frank_dai
-    * */
-    public function login()
-    {
-        return $this->fetch(':login');
-    }
 }

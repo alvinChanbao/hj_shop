@@ -60,4 +60,6 @@ return [
     'break_reconnect' => false,
     // 断线标识字符串
     'break_match_str' => [],
+
+    'md5_password'  => 'vBmu0HKUZXHxMD2O'
 ];

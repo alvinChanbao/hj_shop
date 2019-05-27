@@ -1,4 +1,4 @@
-<?php /*a:2:{s:58:"H:\project\hj_shop/public/themes/admin/default/\login.html";i:1558617444;s:63:"H:\project\hj_shop/public/themes/admin/default/public\head.html";i:1558617319;}*/ ?>
+<?php /*a:2:{s:58:"H:\project\hj_shop/public/themes/admin/default/\login.html";i:1558670186;s:63:"H:\project\hj_shop/public/themes/admin/default/public\head.html";i:1558677994;}*/ ?>
 <!doctype html>
 <html class="x-admin-sm" lang="zh">
 <head>
@@ -22,10 +22,15 @@
         // 是否开启刷新记忆tab功能
         // var is_remember = false;
     </script>
+    <style>
+        .td-manage i{
+            font-size: 20px !important;
+        }
+    </style>
 <link rel="stylesheet" href="http://hj_shop.com/themes/admin/default/public/assets/css/login.css">
 <link rel="stylesheet" href="http://hj_shop.com/themes/admin/default/public/assets//css/xadmin.css">
 <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-<title>后台登录-X-admin2.2</title>
+<title>后台登录-火箭商城管理系统</title>
 </head>
 <body class="login-bg">
     
@@ -33,10 +38,10 @@
         <div class="message">电商管理登录</div>
         <div id="darkbannerwrap"></div>
         
-        <form method="post" class="layui-form" >
-            <input name="username" placeholder="用户名"  type="text" lay-verify="required" class="layui-input" >
+        <form method="post" class="layui-form" action="<?php echo url('admin/public/loginPost'); ?>">
+            <input name="user[user_login]" placeholder="用户名"  type="text" lay-verify="required" class="layui-input" >
             <hr class="hr15">
-            <input name="password" lay-verify="required" placeholder="密码"  type="password" class="layui-input">
+            <input name="user[user_password]" lay-verify="required" placeholder="密码"  type="password" class="layui-input">
             <hr class="hr15">
             <input value="登录" lay-submit lay-filter="login" style="width:100%;" type="submit">
             <hr class="hr20" >
@@ -53,8 +58,12 @@
               //监听提交
               form.on('submit(login)', function(data){
                 // alert(888)
-                layer.msg(JSON.stringify(data.field),function(){
-                    location.href='index.html'
+                  var url = "<?php echo url('admin/public/loginPost'); ?>";
+                $.post(url,data.field,function(res){
+                    console.log(res);
+                    if (res.code === 1){
+                        window.location.href = res.url;
+                    }
                 });
                 return false;
               });

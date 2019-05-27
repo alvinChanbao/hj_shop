@@ -10,3 +10,8 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+function getMd5($pwd)
+{
+    $md5_passwprd = config('database.md5_passwod');
+    return md5($pwd.$md5_passwprd);
+}

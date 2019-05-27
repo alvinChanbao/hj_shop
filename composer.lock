@@ -18,13 +18,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/top-think/framework/zipball/135eee67ce9ee0b07da201f743d7dd88ec431abb",
                 "reference": "135eee67ce9ee0b07da201f743d7dd88ec431abb",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.6.0",
@@ -75,13 +69,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/top-think/think-installer/zipball/f5400a12c60e513911aef41fe443fa6920952675",
                 "reference": "f5400a12c60e513911aef41fe443fa6920952675",
-                "shasum": "",
-                "mirrors": [
-                    {
-                        "url": "https://dl.laravel-china.org/%package%/%reference%.%type%",
-                        "preferred": true
-                    }
-                ]
+                "shasum": ""
             },
             "require": {
                 "composer-plugin-api": "^1.0"
