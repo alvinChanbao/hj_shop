@@ -1,0 +1,113 @@
+<include file="public/head"/>
+<title>商品列表-火箭商城管理系统</title>
+<style>
+    .x-sort{
+        display: inline-block;width: 50px;
+    }
+</style>
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body ">
+                    <table class="layui-table layui-form">
+                        <colgroup>
+                            <col width="">
+                            <col width="">
+                            <col width="">
+                            <col width="">
+                            <col  width="">
+                        </colgroup>
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>描述</th>
+                            <th>状态</th>
+                        </thead>
+                        <tbody class="x-cate">
+
+                        <foreach name="list" item="vo">
+                            <tr cate-id='{$vo.id}' fid='{$vo.parent_id}' >
+                                <td>
+                                    {$vo.blank | raw}
+                                    <i class="layui-icon x-show" status='true'>&#xe623;</i>
+                                    <input type="checkbox" name="" lay-skin="primary">
+                                </td>
+                                <td>{$vo.id}</td>
+                                <td>
+                                    {$vo.blank | raw}
+                                    {$vo.Level | raw}
+                                    {$vo.name}
+                                </td>
+                                <td>
+                                    {$vo.description}
+                                </td>
+                                <td>
+                                    <input disabled type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">
+                                </td>
+                            </tr>
+                        </foreach>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="layui-card-body ">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    layui.use(['laydate','form'], function(){
+        var laydate = layui.laydate;
+        var form = layui.form;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#start' //指定元素
+        });
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#end' //指定元素
+        });
+    });
+
+    $(function(){
+        $("tbody.x-cate tr[fid!='0']").hide();
+        // 栏目多级显示效果
+        $('.x-show').click(function () {
+            if($(this).attr('status')=='true'){
+                $(this).html('&#xe625;');
+                $(this).attr('status','false');
+                cateId = $(this).parents('tr').attr('cate-id');
+                $("tbody tr[fid="+cateId+"]").show();
+            }else{
+                cateIds = [];
+                $(this).html('&#xe623;');
+                $(this).attr('status','true');
+                cateId = $(this).parents('tr').attr('cate-id');
+                getCateId(cateId);
+                for (var i in cateIds) {
+                    $("tbody tr[cate-id="+cateIds[i]+"]").hide().find('.x-show').html('&#xe623;').attr('status','true');
+                }
+            }
+        })
+    })
+
+    var cateIds = [];
+    function getCateId(cateId) {
+        $("tbody tr[fid="+cateId+"]").each(function(index, el) {
+            id = $(el).attr('cate-id');
+            cateIds.push(id);
+            getCateId(id);
+        });
+    }
+</script>
+</html>

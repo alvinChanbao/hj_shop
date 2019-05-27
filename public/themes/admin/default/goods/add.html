@@ -8,6 +8,10 @@
         .wrap_img img {
             width: 100%;
         }
+
+        .x-admin-sm .layui-input, .x-admin-sm .layui-select, .x-admin-sm .layui-textarea {
+            height: 38px;
+        }
     </style>
     </head>
     <body>
@@ -20,6 +24,14 @@
                         <div class="layui-input-block">
                             <input type="text" id="goods_name" name="goods_name" required lay-verify="required"
                                    placeholder="请输入标题" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>分类名称</label>
+                        <div class="layui-input-block">
+                            <input onclick="getCategoryId(this)" readonly style="width: 200px;" type="text" id="goods_category" name="goods_category" required lay-verify="required"
+                                   placeholder="请选择商品类目" autocomplete="off" class="layui-input">
                         </div>
                     </div>
 
@@ -112,32 +124,29 @@
                     return false;
                 });
             });
-        
-        function  uploadPic(id,multi = '') {
 
-            var url = "{:url('admin/storage/add')}";
-
-            uploadConfig['multi'] = multi;
-
-            layer.open({
-                type: 2,
-                area: ['600px', '400px'],
-                title:'添加图片',
-                content: [url, 'no'], //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
-                btn:['确认','取消'],
-                fixed:true,
-                resize:false,
-                yes: function(index, layero){
-                    //do something
-                    //var body = layer.getChildFrame('body', index);
-                    var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                    var picStr = iframeWin.getJsonStr();
-                    console.log(picStr);
-                    $("#thumbnail_prev").attr('src',picStr);
-                    layer.close(index); //如果设定了yes回调，需进行手工关闭
-                }
-            });
-        }
-            
+            function getCategoryId() {
+                var url = "{:url('admin/goods_category/category_api')}";
+                var parent = window.parent;
+                parent.layer.open({
+                    type: 2,
+                    area: ['95%','90%'],
+                    title:'选择类目',
+                    content: url, //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                    btn:['确认','取消'],
+                    fixed:true,
+                    resize:false,
+                    move:false,
+                    yes: function(index, layero){
+                        //do something
+                        //var body = layer.getChildFrame('body', index);
+                        var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                        var picStr = iframeWin.getJsonStr();
+                        console.log(picStr);
+                        $("#thumbnail_prev").attr('src',picStr);
+                        layer.close(index); //如果设定了yes回调，需进行手工关闭
+                    }
+                });
+            }
     </script>
     </html>
