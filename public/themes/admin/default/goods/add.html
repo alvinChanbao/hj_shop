@@ -1,6 +1,9 @@
 <include file="public/head"/>
     <title>添加商品-火箭商城管理系统</title>
     <style>
+        body{
+            background: #fff;
+        }
         .wrap_img {
             width: 150px;
         }
@@ -9,13 +12,79 @@
             width: 100%;
         }
 
-        .x-admin-sm .layui-input, .x-admin-sm .layui-select, .x-admin-sm .layui-textarea {
-            height: 38px;
+        .sku_item{
+            background: #eee;margin: 10px;
         }
+
+        .bg_white{
+            background: #fff;
+        }
+
+        .sku_item .left_name{
+            display: inline-block;
+        }
+
+        .sku_item .right_box{
+            width: calc(100% - 100px);
+            display: inline-block;
+        }
+        .sku_item .right_box input{
+            width: 180px;
+            max-width: 90%;
+            display: inline-block;
+        }
+
+        .sku_item .right_box .layui-col-md3{
+            margin-top: 10px;
+        }
+
+        .sku_item .right_box .layui-col-md3:nth-child(-n+4){
+            margin-top: 0px;
+        }
+
+        .closeBtn{
+            position: absolute;
+            right: 15px;
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background: #ddd;
+            border-radius: 50%;
+            line-height: 25px;
+            text-align: center;
+            color: #fff;
+            top: 16px;
+            cursor: pointer;
+        }
+
+        .addSkuBtn{
+            height: 38px;
+            line-height: 38px;
+            color: #009688;
+        }
+
+        .skuCloseBtn{
+            position: absolute;
+            top: -7px;
+            left: 80%;
+            width: 20px;
+            height: 20px;
+            background: #ddd;
+            line-height: 20px;
+            text-align: center;
+            color: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .skuCloseBtn i{
+            font-size: 12px;
+        }
+
     </style>
     </head>
     <body>
-    <div class="layui-fluid">
+    <div id="app" class="layui-fluid">
         <div class="layui-row layui-col-space15">
             <div class="layui-col-md10">
                 <form class="layui-form" action="">
@@ -30,8 +99,9 @@
                     <div class="layui-form-item">
                         <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>分类名称</label>
                         <div class="layui-input-block">
-                            <input onclick="getCategoryId(this)" readonly style="width: 200px;" type="text" id="goods_category" name="goods_category" required lay-verify="required"
+                            <input @click='getCategoryId' readonly style="width: 200px;" type="text" id="goods_category" name="goods_category" required lay-verify="required"
                                    placeholder="请选择商品类目" autocomplete="off" class="layui-input">
+                            <input id="category_id" type="hidden" name="category_id" value="">
                         </div>
                     </div>
 
@@ -43,6 +113,54 @@
                             </div>
                             <input type="hidden" id="thumbnail" name="thumbnail" required lay-verify="required"
                                    placeholder="请选择缩略图" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">商品规格</label>
+                        <div style="background: #fff;border: 1px #eee solid" class="layui-input-block">
+                            <div class="sku_item">
+
+                                <template v-for="(item,index)  in addSkuData">
+
+                                    <div class="item_list">
+                                        <div style="padding: 10px;position: relative">
+                                            <div class="left_name">
+                                                <label >规格名：</label>
+                                            </div>
+                                            <div class="right_box">
+                                                <input style="width: 200px;display: inline-block" type="text" value="item.sku_name" placeholder="请输入规格名" v-model="item.sku_name" autocomplete="off" class="layui-input">
+                                                <div @click="deleteAddSkuItem(index)" class="closeBtn"><i class="icon iconfont">&#xe69a;</i></div>
+                                            </div>
+                                        </div>
+                                        <div class="bg_white" style="padding: 10px">
+                                            <div style="position: relative;bottom: 15px;" class="left_name">
+                                                <label>规格值：</label>
+                                            </div>
+                                            <div class="right_box">
+                                                <div class="layui-row">
+                                                    <template v-for="(itemAttr,i) in item.sku_attr">
+                                                        <div class="layui-col-xs3">
+                                                            <div style="position: relative">
+                                                            <input style="" type="text" placeholder="请输入规格名" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
+                                                            <div class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                    <div class="layui-col-xs3">
+                                                        <a class="addSkuBtn" href="javascript:;">添加规格值</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </template>
+
+                                <div style="padding: 10px;margin-top: 0;" class="sku_item">
+                                    <button type="button" @click="addSkuItem" class="layui-btn"  :disabled="hasMaxSku ? 'disabled':false " :class="hasMaxSku ? 'layui-btn-disabled':''">添加规格</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -82,71 +200,154 @@
     </body>
     <include file="public/scripts"/>
     <script>
-
-        var uploadConfig = [];
-
-        layui.use(['form', 'layer', 'jquery', 'layedit'],function () {
-            $ = layui.jquery;
-            var form = layui.form,
-                layer = layui.layer;
-            var layedit = layui.layedit;
-            layedit.build('details', {
-                height: 150
-            }); //建立编辑器
-            //自定义验证规则
-            form.verify({
-                nikename: function (value) {
-                    if (value.length < 5) {
-                        return '昵称至少得5个字符啊';
+        
+        var app;
+        
+        $(function () {
+            app = new Vue({
+                el:'#app',
+                data:{
+                    addSkuData:[
+                        /*{
+                            sku_name:'颜色',
+                            sku_attr:[
+                                {
+                                    id:1,
+                                    value:'红色'
+                                },
+                                {
+                                    id:2,
+                                    value:'蓝色'
+                                }
+                            ]
+                        },
+                        {
+                            sku_name:'内存',
+                            sku_attr:[
+                                {
+                                    id:3,
+                                    value:'32G'
+                                },
+                                {
+                                    id:4,
+                                    value:'64G'
+                                }
+                            ]
+                        }*/
+                    ],
+                    hasMaxSku:false
+                },
+                watch:{
+                    addSkuData:{
+                        handler(val,old){
+                            console.log(val.length);
+                            var that = this;
+                            if (val.length >= 3){
+                                that.hasMaxSku = true;
+                            }
+                            else{
+                                that.hasMaxSku = false;
+                            }
+                        },
+                        deep:true
                     }
                 },
-                pass: [/(.+){6,12}$/, '密码必须6到12位'],
-                repass: function (value) {
-                    if ($('#L_pass').val() != $('#L_repass').val()) {
-                        return '两次密码不一致';
+                mounted(){
+                    this.init();
+                },
+                methods:{
+                    init:function(){
+                        layui.use(['form', 'layer', 'jquery', 'layedit'],function () {
+                            $ = layui.jquery;
+                            var form = layui.form,
+                                layer = layui.layer;
+                            var layedit = layui.layedit;
+                            layedit.build('details', {
+                                height: 150
+                            }); //建立编辑器
+                            //自定义验证规则
+                            form.verify({
+                                nikename: function (value) {
+                                    if (value.length < 5) {
+                                        return '昵称至少得5个字符啊';
+                                    }
+                                },
+                                pass: [/(.+){6,12}$/, '密码必须6到12位'],
+                                repass: function (value) {
+                                    if ($('#L_pass').val() != $('#L_repass').val()) {
+                                        return '两次密码不一致';
+                                    }
+                                }
+                            });
+
+                            //监听提交
+                            form.on('submit(add)',function (data) {
+                                console.log(data);
+                                //发异步，把数据提交给php
+                                layer.alert("增加成功", {
+                                        icon: 6
+                                    },
+                                    function () {
+                                        //关闭当前frame
+                                        xadmin.close();
+                                        // 可以对父窗口进行刷新
+                                        xadmin.father_reload();
+                                    });
+                                return false;
+                            });
+                        });
+                    },
+                    getCategoryId:function () {
+                        var url = "{:url('admin/goods_category/category_api')}";
+                        console.log(window.parent.document);
+                        var parent = window.parent;
+                        parent.layer.open({
+                            type: 2,
+                            area: ['95%','90%'],
+                            title:'选择类目',
+                            content: url, //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                            btn:['确认','取消'],
+                            fixed:true,
+                            resize:false,
+                            move:false,
+                            yes: function(index, layero){
+                                //do something
+                                console.log(window.parent.document);
+                                //var body = window.parent.layer.getChildFrame('body', index);
+                                iframeWin = window.parent.window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                                var category = iframeWin.getCheckValue();
+                                console.log(category);
+                                var category_ids = category['category_ids'] ;
+                                var category_names = category['category_names'] ;
+                                $("#goods_category").val(category_names);
+                                $("#category_id").val(category_ids);
+                                parent.layer.close(index); //如果设定了yes回调，需进行手工关闭
+                            }
+                        });
+                    },
+                    //动态添加规格
+                    addSkuItem:function () {
+                       var that = this;
+                       var data = {
+                           sku_name:'',
+                           sku_attr:[
+                               {
+                                   id:'',
+                                   value:''
+                               }
+                           ]
+                       }
+                        that.addSkuData.push(data);
+                    },
+                    //删除当前一项规格
+                    deleteAddSkuItem:function (index) {
+                        console.log(index);
+                        var that = this;
+                        that.addSkuData.splice(index,1);
                     }
                 }
             });
+        })
 
-            //监听提交
-            form.on('submit(add)',function (data) {
-                    console.log(data);
-                    //发异步，把数据提交给php
-                    layer.alert("增加成功", {
-                            icon: 6
-                        },
-                        function () {
-                            //关闭当前frame
-                            xadmin.close();
-                            // 可以对父窗口进行刷新
-                            xadmin.father_reload();
-                        });
-                    return false;
-                });
-            });
-
-            function getCategoryId() {
-                var url = "{:url('admin/goods_category/category_api')}";
-                var parent = window.parent;
-                parent.layer.open({
-                    type: 2,
-                    area: ['95%','90%'],
-                    title:'选择类目',
-                    content: url, //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
-                    btn:['确认','取消'],
-                    fixed:true,
-                    resize:false,
-                    move:false,
-                    yes: function(index, layero){
-                        //do something
-                        //var body = layer.getChildFrame('body', index);
-                        var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
-                        var picStr = iframeWin.getJsonStr();
-                        console.log(picStr);
-                        $("#thumbnail_prev").attr('src',picStr);
-                        layer.close(index); //如果设定了yes回调，需进行手工关闭
-                    }
-                });
-            }
     </script>
     </html>

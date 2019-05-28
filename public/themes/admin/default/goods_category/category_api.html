@@ -1,113 +1,1 @@
-<include file="public/head"/>
-<title>商品列表-火箭商城管理系统</title>
-<style>
-    .x-sort{
-        display: inline-block;width: 50px;
-    }
-</style>
-</head>
-<body>
-<div class="layui-fluid">
-    <div class="layui-row layui-col-space15">
-        <div class="layui-col-md12">
-            <div class="layui-card">
-                <div class="layui-card-body ">
-                    <table class="layui-table layui-form">
-                        <colgroup>
-                            <col width="">
-                            <col width="">
-                            <col width="">
-                            <col width="">
-                            <col  width="">
-                        </colgroup>
-                        <thead>
-                        <tr>
-                            <th></th>
-                            <th>ID</th>
-                            <th>名称</th>
-                            <th>描述</th>
-                            <th>状态</th>
-                        </thead>
-                        <tbody class="x-cate">
-
-                        <foreach name="list" item="vo">
-                            <tr cate-id='{$vo.id}' fid='{$vo.parent_id}' >
-                                <td>
-                                    {$vo.blank | raw}
-                                    <i class="layui-icon x-show" status='true'>&#xe623;</i>
-                                    <input type="checkbox" name="" lay-skin="primary">
-                                </td>
-                                <td>{$vo.id}</td>
-                                <td>
-                                    {$vo.blank | raw}
-                                    {$vo.Level | raw}
-                                    {$vo.name}
-                                </td>
-                                <td>
-                                    {$vo.description}
-                                </td>
-                                <td>
-                                    <input disabled type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">
-                                </td>
-                            </tr>
-                        </foreach>
-
-                        </tbody>
-                    </table>
-                </div>
-                <div class="layui-card-body ">
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
-<script>
-    layui.use(['laydate','form'], function(){
-        var laydate = layui.laydate;
-        var form = layui.form;
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#start' //指定元素
-        });
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: '#end' //指定元素
-        });
-    });
-
-    $(function(){
-        $("tbody.x-cate tr[fid!='0']").hide();
-        // 栏目多级显示效果
-        $('.x-show').click(function () {
-            if($(this).attr('status')=='true'){
-                $(this).html('&#xe625;');
-                $(this).attr('status','false');
-                cateId = $(this).parents('tr').attr('cate-id');
-                $("tbody tr[fid="+cateId+"]").show();
-            }else{
-                cateIds = [];
-                $(this).html('&#xe623;');
-                $(this).attr('status','true');
-                cateId = $(this).parents('tr').attr('cate-id');
-                getCateId(cateId);
-                for (var i in cateIds) {
-                    $("tbody tr[cate-id="+cateIds[i]+"]").hide().find('.x-show').html('&#xe623;').attr('status','true');
-                }
-            }
-        })
-    })
-
-    var cateIds = [];
-    function getCateId(cateId) {
-        $("tbody tr[fid="+cateId+"]").each(function(index, el) {
-            id = $(el).attr('cate-id');
-            cateIds.push(id);
-            getCateId(id);
-        });
-    }
-</script>
-</html>
+<include file="public/head"/><title>商品列表-火箭商城管理系统</title><style>    .x-sort{        display: inline-block;width: 50px;    }</style></head><body><div class="layui-fluid">    <div class="layui-row layui-col-space15">        <div class="layui-col-md12">            <div class="layui-card">                <div class="layui-card-body ">                    <table class="layui-table layui-form">                        <colgroup>                            <col width="">                            <col width="">                            <col width="">                            <col width="">                            <col  width="">                        </colgroup>                        <thead>                        <tr>                            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="checkall" value="all" lay-filter="checkall" lay-skin="primary"> </th>                            <th>ID</th>                            <th>名称</th>                            <th>描述</th>                            <th>状态</th>                        </thead>                        <tbody class="x-cate">                        <foreach name="list" item="vo">                            <tr cate-id='{$vo.id}' fid='{$vo.parent_id}' >                                <td>                                    {$vo.blank | raw}                                    <i class="layui-icon x-show" status='true'>&#xe623;</i>                                    <input type="checkbox" name="check[]" data-name="{$vo.name}" lay-filter="check" value="{$vo.id|default=''}" lay-skin="primary">                                </td>                                <td>{$vo.id}</td>                                <td>                                    {$vo.blank | raw}                                    {$vo.Level | raw}                                    {$vo.name}                                </td>                                <td>                                    {$vo.description}                                </td>                                <td>                                    <input disabled type="checkbox" name="switch"  lay-text="开启|停用"  checked="" lay-skin="switch">                                </td>                            </tr>                        </foreach>                        </tbody>                    </table>                </div>                <div class="layui-card-body ">                </div>            </div>        </div>    </div></div></body><script>    var form ;    layui.use(['laydate','form'], function(){        var laydate = layui.laydate;        form = layui.form;        form.on('checkbox()', function(data){            console.log(data.elem); //得到checkbox原始DOM对象            console.log(data.elem.checked); //是否被选中，true或者false            console.log(data.value); //复选框value值，也可以通过data.elem.value得到            console.log(data.othis);            if (data.value == 'all'){                if (data.elem.checked){                    $("input[name='check[]']").prop('checked',true);                }                else{                    $("input[name='check[]']").prop('checked',false);                }            }            else {               $status = $("input[name='check[]']").length == $("input[name='check[]']:checked").length ? true : false;               console.log($status);                $("input[name='checkall']").prop('checked',$status);            }            form.render();        });        //执行一个laydate实例        laydate.render({            elem: '#start' //指定元素        });        //执行一个laydate实例        laydate.render({            elem: '#end' //指定元素        });    });    $(function(){        var category_ids = window.parent.window[window.parent.frames[0].name].$("#category_id").val();        $("tbody.x-cate tr[fid!='0']").hide();        // 栏目多级显示效果        $('.x-show').click(function () {            if($(this).attr('status')=='true'){                $(this).html('&#xe625;');                $(this).attr('status','false');                cateId = $(this).parents('tr').attr('cate-id');                $("tbody tr[fid="+cateId+"]").show();            }else{                cateIds = [];                $(this).html('&#xe623;');                $(this).attr('status','true');                cateId = $(this).parents('tr').attr('cate-id');                getCateId(cateId);                for (var i in cateIds) {                    $("tbody tr[cate-id="+cateIds[i]+"]").hide().find('.x-show').html('&#xe623;').attr('status','true');                }            }        })        var category = category_ids.split(',');        console.log(category);        for (var i = 0; i < category.length; i++){            $("input[value='"+category[i]+"']").prop('checked',true);        }    })    var cateIds = [];    function getCateId(cateId) {        $("tbody tr[fid="+cateId+"]").each(function(index, el) {            id = $(el).attr('cate-id');            cateIds.push(id);            getCateId(id);        });    }        function getCheckValue() {        var obj = $("input[name='check[]']:checked");        var arr = [];        var strArr = [];        var category = [];        for (var i = 0; i < obj.length; i++){            console.log(obj[i].value);            arr.push(obj[i].value);            //获取当前所选栏目名称            strArr.push($.trim($(obj[i])[0].dataset.name));        }        var category_ids = arr.join(',');        var category_names = strArr.join(',');1        category['category_ids'] = category_ids;        category['category_names'] = category_names;        return category;    }</script></html>
