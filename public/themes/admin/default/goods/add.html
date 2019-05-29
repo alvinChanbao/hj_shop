@@ -34,11 +34,11 @@
             display: inline-block;
         }
 
-        .sku_item .right_box .layui-col-md3{
+        .sku_item .right_box .layui-col-xs3{
             margin-top: 10px;
         }
 
-        .sku_item .right_box .layui-col-md3:nth-child(-n+4){
+        .sku_item .right_box .layui-col-xs3:nth-child(-n+4){
             margin-top: 0px;
         }
 
@@ -79,6 +79,10 @@
 
         .skuCloseBtn i{
             font-size: 12px;
+        }
+
+        .layui-table input{
+            height: 30px;
         }
 
     </style>
@@ -133,7 +137,7 @@
                                                 <div @click="deleteAddSkuItem(index)" class="closeBtn"><i class="icon iconfont">&#xe69a;</i></div>
                                             </div>
                                         </div>
-                                        <div class="bg_white" style="padding: 10px">
+                                        <div class="bg_white" style="padding: 10px" v-if="item.sku_name != ''">
                                             <div style="position: relative;bottom: 15px;" class="left_name">
                                                 <label>规格值：</label>
                                             </div>
@@ -143,12 +147,12 @@
                                                         <div class="layui-col-xs3">
                                                             <div style="position: relative">
                                                             <input style="" type="text" placeholder="请输入规格名" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
-                                                            <div class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
+                                                            <div @click="deleteSkuItem(index,i)" class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
                                                             </div>
                                                         </div>
                                                     </template>
                                                     <div class="layui-col-xs3">
-                                                        <a class="addSkuBtn" href="javascript:;">添加规格值</a>
+                                                        <a @click="addSkuAttrItem(index)" class="addSkuBtn" href="javascript:;">添加规格值</a>
                                                     </div>
                                                 </div>
                                             </div>
@@ -161,6 +165,48 @@
                                     <button type="button" @click="addSkuItem" class="layui-btn"  :disabled="hasMaxSku ? 'disabled':false " :class="hasMaxSku ? 'layui-btn-disabled':''">添加规格</button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">规格明细</label>
+                        <div class="layui-input-block">
+                            <table class="layui-table">
+                                <colgroup>
+
+                                </colgroup>
+                                <thead>
+                                <tr>
+                                    <th>颜色</th>
+                                    <th>内存</th>
+                                    <th>价格（元）</th>
+                                    <th>库存</th>
+                                    <th>规格编码</th>
+                                    <th>成本价</th>
+                                    <th>销量</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>红色</td>
+                                    <td>32G</td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>红色</td>
+                                    <td>64G</td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
+                                    <td>0</td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
 
@@ -202,7 +248,7 @@
     <script>
         
         var app;
-        
+        var data = [];
         $(function () {
             app = new Vue({
                 el:'#app',
@@ -212,11 +258,9 @@
                             sku_name:'颜色',
                             sku_attr:[
                                 {
-                                    id:1,
                                     value:'红色'
                                 },
                                 {
-                                    id:2,
                                     value:'蓝色'
                                 }
                             ]
@@ -225,22 +269,20 @@
                             sku_name:'内存',
                             sku_attr:[
                                 {
-                                    id:3,
                                     value:'32G'
                                 },
                                 {
-                                    id:4,
                                     value:'64G'
                                 }
                             ]
                         }*/
                     ],
+                    tableData:[],
                     hasMaxSku:false
                 },
                 watch:{
                     addSkuData:{
                         handler(val,old){
-                            console.log(val.length);
                             var that = this;
                             if (val.length >= 3){
                                 that.hasMaxSku = true;
@@ -248,6 +290,8 @@
                             else{
                                 that.hasMaxSku = false;
                             }
+
+                            that.getTableSkuData(val);
                         },
                         deep:true
                     }
@@ -257,6 +301,7 @@
                 },
                 methods:{
                     init:function(){
+                        var that = this;
                         layui.use(['form', 'layer', 'jquery', 'layedit'],function () {
                             $ = layui.jquery;
                             var form = layui.form,
@@ -296,6 +341,45 @@
                                 return false;
                             });
                         });
+
+                        that.addSkuData = [
+                            {
+                                sku_name:'颜色',
+                                sku_attr:[
+                                    {
+                                        value:'红色'
+                                    },
+                                    {
+                                        value:'蓝色'
+                                    },
+                                    {
+                                        value:'黄色'
+                                    }
+                                ]
+                            },
+                            {
+                                sku_name:'内存',
+                                sku_attr:[
+                                    {
+                                        value:'32G'
+                                    },
+                                    {
+                                        value:'64G'
+                                    }
+                                ]
+                            },
+                            {
+                                sku_name:'版本',
+                                sku_attr:[
+                                    {
+                                        value:'全网'
+                                    },
+                                    {
+                                        value:'移动'
+                                    }
+                                ]
+                            }
+                        ];
                     },
                     getCategoryId:function () {
                         var url = "{:url('admin/goods_category/category_api')}";
@@ -332,7 +416,6 @@
                            sku_name:'',
                            sku_attr:[
                                {
-                                   id:'',
                                    value:''
                                }
                            ]
@@ -344,7 +427,61 @@
                         console.log(index);
                         var that = this;
                         that.addSkuData.splice(index,1);
+                    },
+                    //添加attr一项规格
+                    addSkuAttrItem:function (index) {
+                        var that = this;
+                        var arr = [{
+                            value:''
+                        }];
+                        that.addSkuData[index]['sku_attr'].push(arr);
+                    },
+                    //删除点中的attr
+                    deleteSkuItem:function (index,i) {
+                        var that = this;
+                        that.addSkuData[index]['sku_attr'].splice(i,1);
+                    },
+                    //将添加数据转换为表格数组
+                    getTableSkuData:function (val) {
+                        var that = this;
+                        that.getSkuNextItem(val,0);
+                    },
+                    //递归获取子项内容
+                    getSkuNextItem:function (val,index) {
+
+                        var that = this;
+                        var length = val[index]['sku_attr'].length;
+                        index++;
+                        for (var i = 0; i < length; i++) {
+                            if (index < val.length){
+                                //console.log(index);
+                                that.getSkuNextItem(val,index);
+                            }
+                            else{
+                                console.log(index);
+                            }
+                        }
                     }
+                    /*getSkuNextItem:function (val,index) {
+                        var that = this;
+                        //第1次循环
+                        if (index == 0){
+                            for (var i = 0; i < val[index]['sku_attr'].length; i++) {
+                                // console.log(val[index]['sku_attr'][i].value);
+
+                                //第二次循环
+                                for (var j = 0; j < val[Number(index)+1]['sku_attr'].length; j++){
+                                    //console.log(val[Number(index)+1]['sku_attr'][j].value);
+
+                                    //第三次循环
+                                    for (var k = 0; k < val[Number(index)+2]['sku_attr'].length; k++){
+                                        console.log([val[index]['sku_attr'][i].value,val[Number(index)+1]['sku_attr'][j].value,val[Number(index)+2]['sku_attr'][k].value]);
+                                        data.push([val[index]['sku_attr'][i].value,val[Number(index)+1]['sku_attr'][j].value,val[Number(index)+2]['sku_attr'][k].value]);
+                                    }
+                                }
+                            }
+                        }
+                    }*/
                 }
             });
         })
