@@ -146,7 +146,7 @@
                                                     <template v-for="(itemAttr,i) in item.sku_attr">
                                                         <div class="layui-col-xs3">
                                                             <div style="position: relative">
-                                                            <input style="" type="text" placeholder="请输入规格名" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
+                                                            <input @blur="getValue(index,i,$event)" type="text" placeholder="请输入规格值" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
                                                             <div @click="deleteSkuItem(index,i)" class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
                                                             </div>
                                                         </div>
@@ -168,7 +168,7 @@
                         </div>
                     </div>
 
-                    <div class="layui-form-item">
+                    <div v-if="tableData.length > 0 && addSkuData[0].sku_name != ''" class="layui-form-item">
                         <label class="layui-form-label">规格明细</label>
                         <div class="layui-input-block">
                             <table class="layui-table">
@@ -177,8 +177,9 @@
                                 </colgroup>
                                 <thead>
                                 <tr>
-                                    <th>颜色</th>
-                                    <th>内存</th>
+                                    <template v-for="(item,index) in addSkuData">
+                                        <th>{{item.sku_name}}</th>
+                                    </template>
                                     <th>价格（元）</th>
                                     <th>库存</th>
                                     <th>规格编码</th>
@@ -187,24 +188,18 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>红色</td>
-                                    <td>32G</td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td>0</td>
-                                </tr>
-                                <tr>
-                                    <td>红色</td>
-                                    <td>64G</td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td><input type="text" name="title" required  lay-verify="required" placeholder="" autocomplete="off" class="layui-input"></td>
-                                    <td>0</td>
-                                </tr>
+                                    <template v-for="(item,index)  in tableData">
+                                        <tr>
+                                            <template v-for="(itemAttr,index)  in item.sku">
+                                                <td>{{itemAttr}}</td>
+                                            </template>
+                                            <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.price" autocomplete="off" class="layui-input"></td>
+                                            <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.SalesVolume" autocomplete="off" class="layui-input"></td>
+                                            <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.specNum" autocomplete="off" class="layui-input"></td>
+                                            <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.costPrice" autocomplete="off" class="layui-input"></td>
+                                            <td>{{item.stock}}</td>
+                                        </tr>
+                                    </template>
                                 </tbody>
                             </table>
                         </div>
@@ -278,6 +273,8 @@
                         }*/
                     ],
                     tableData:[],
+                    indexArr:[],
+                    count:0,
                     hasMaxSku:false
                 },
                 watch:{
@@ -290,8 +287,8 @@
                             else{
                                 that.hasMaxSku = false;
                             }
-
-                            that.getTableSkuData(val);
+                            that.initTableData();
+                            that.getSkuNextItem(val,0);
                         },
                         deep:true
                     }
@@ -341,45 +338,11 @@
                                 return false;
                             });
                         });
-
-                        that.addSkuData = [
-                            {
-                                sku_name:'颜色',
-                                sku_attr:[
-                                    {
-                                        value:'红色'
-                                    },
-                                    {
-                                        value:'蓝色'
-                                    },
-                                    {
-                                        value:'黄色'
-                                    }
-                                ]
-                            },
-                            {
-                                sku_name:'内存',
-                                sku_attr:[
-                                    {
-                                        value:'32G'
-                                    },
-                                    {
-                                        value:'64G'
-                                    }
-                                ]
-                            },
-                            {
-                                sku_name:'版本',
-                                sku_attr:[
-                                    {
-                                        value:'全网'
-                                    },
-                                    {
-                                        value:'移动'
-                                    }
-                                ]
-                            }
-                        ];
+                    },
+                    initTableData:function(){
+                        this.tableData = [];
+                        this.indexArr = [];
+                        this.count = 0;
                     },
                     getCategoryId:function () {
                         var url = "{:url('admin/goods_category/category_api')}";
@@ -441,27 +404,35 @@
                         var that = this;
                         that.addSkuData[index]['sku_attr'].splice(i,1);
                     },
-                    //将添加数据转换为表格数组
-                    getTableSkuData:function (val) {
-                        var that = this;
-                        that.getSkuNextItem(val,0);
-                    },
                     //递归获取子项内容
                     getSkuNextItem:function (val,index) {
-
                         var that = this;
                         var length = val[index]['sku_attr'].length;
-                        index++;
+                        var levelUp = index + 1;
                         for (var i = 0; i < length; i++) {
-                            if (index < val.length){
-                                //console.log(index);
-                                that.getSkuNextItem(val,index);
+                            that.indexArr[index] =  val[index]['sku_attr'][i]['value'];
+                            if (levelUp == val.length){
+                                var count = that.count;
+                                var obj = { 'sku': that.indexArr.slice(0), 'price': '0', 'stock': '0', 'specNum': '0', 'costPrice': '0', 'SalesVolume': '0' }
+                                console.log(obj);
+                                if (that.tableData[count] === undefined) {
+                                    that.tableData.push(obj)
+                                }
+                                this.count = count + 1
                             }
-                            else{
-                                console.log(index);
+                            if (levelUp < val.length){
+                                that.getSkuNextItem(val,levelUp);
                             }
                         }
+                    },
+                    //获取当前值是否为空
+                    getValue:function (index,i,event) {
+                        var value = event.target.value;
+                        if (value == ''){
+                            this.deleteSkuItem(index,i);
+                        }
                     }
+
                     /*getSkuNextItem:function (val,index) {
                         var that = this;
                         //第1次循环
