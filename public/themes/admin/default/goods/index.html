@@ -37,8 +37,8 @@
                             <th>缩略图</th>
                             <th>商品名</th>
                             <th>所属分类</th>
-                            <th>售价</th>
-                            <th>销量</th>
+                            <th>售价（元）</th>
+                            <th>总销量</th>
                             <th>状态</th>
                             <th>操作</th>
                         </thead>
@@ -50,13 +50,13 @@
                             </td>
                             <td>{$vo.id}</td>
                             <td>
-                                <img src="https://m.360buyimg.com/mobilecms/s750x750_jfs/t24280/355/809346995/58119/d9407f0e/5b442f74N23caa058.jpg!q80.dpg" alt=""/>
+                                <img src="{$vo.thumbnail}" alt=""/>
                             </td>
                             <td>
                                 {$vo.goods_name}
                             </td>
-                            <td>电子</td>
-                            <td>{$vo.price}</td>
+                            <td>{$vo.category}</td>
+                            <td>{$vo.SkuMinPrice} - {$vo.SkuMaxPrice}</td>
                             <td>{$vo.sales_volume}</td>
                             <td class="td-status">
                                 <span class="layui-btn layui-btn-normal layui-btn-mini">已启用</span></td>

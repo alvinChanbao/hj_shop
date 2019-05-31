@@ -91,32 +91,31 @@
     <div id="app" class="layui-fluid">
         <div class="layui-row layui-col-space15">
             <div class="layui-col-md10">
-                <form class="layui-form" action="">
+                <form class="layui-form" action=""  lay-filter="add">
                     <div class="layui-form-item">
                         <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>商品名称</label>
                         <div class="layui-input-block">
                             <input type="text" id="goods_name" name="goods_name" required lay-verify="required"
-                                   placeholder="请输入标题" autocomplete="off" class="layui-input">
+                                   placeholder="请输入标题" autocomplete="off" v-model="addData.goods_name" class="layui-input">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>分类名称</label>
                         <div class="layui-input-block">
-                            <input @click='getCategoryId' readonly style="width: 200px;" type="text" id="goods_category" name="goods_category" required lay-verify="required"
-                                   placeholder="请选择商品类目" autocomplete="off" class="layui-input">
-                            <input id="category_id" type="hidden" name="category_id" value="">
+                            <input @click='getCategoryId' readonly style="width: 200px;" required  lay-verify="required" type="text" id="goods_category" name="goods_category" placeholder="请选择商品类目" autocomplete="off" class="layui-input">
+                            <input id="category_id" type="hidden" v-model="addData.category_id" name="category_id">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label class="layui-form-label">缩略图</label>
                         <div class="layui-input-block">
-                            <div onclick="uploadPic('#thumbnail')" class="wrap_img">
+                            <div @click="uploadPic('#thumbnail')" class="wrap_img">
                                 <img id="thumbnail_prev" src="__TMPL__/assets/images/default-thumbnail.png" alt="">
                             </div>
-                            <input type="hidden" id="thumbnail" name="thumbnail" required lay-verify="required"
-                                   placeholder="请选择缩略图" autocomplete="off" class="layui-input">
+                            <input type="hidden" id="thumbnail" name="thumbnail"
+                                   placeholder="请选择缩略图" autocomplete="off"v-model="addData.thumbnail" class="layui-input">
                         </div>
                     </div>
 
@@ -146,7 +145,7 @@
                                                     <template v-for="(itemAttr,i) in item.sku_attr">
                                                         <div class="layui-col-xs3">
                                                             <div style="position: relative">
-                                                            <input @blur="getValue(index,i,$event)" type="text" placeholder="请输入规格值" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
+                                                            <input @blur="getValue(index,i,$event)" @change="initTableData()" type="text" placeholder="请输入规格值" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
                                                             <div @click="deleteSkuItem(index,i)" class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
                                                             </div>
                                                         </div>
@@ -208,29 +207,29 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">商品详情</label>
                         <div class="layui-input-block">
-                            <textarea id="details" style="display: none;"></textarea>
+                            <textarea id="details" style="display: none;" v-model="addData.details">{{addData.details}}</textarea>
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label class="layui-form-label">推荐设置</label>
                         <div class="layui-input-block">
-                            <input type="checkbox" name="like[write]" title="置顶">
-                            <input type="checkbox" name="like[read]" title="推荐">
+                            <input type="checkbox" name="is_top" value="1" v-model="addData.is_top" title="置顶" lay-filter="is_top">
+                            <input type="checkbox" name="recommended" value="1" v-model="addData.recommended" title="推荐" lay-filter="recommended">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <label class="layui-form-label">状态</label>
                         <div class="layui-input-block">
-                            <input type="radio" name="sex" value="0" title="上架" checked>
-                            <input type="radio" name="sex" value="1" title="下架">
+                            <input type="radio" name="status" value="0" lay-filter="status" v-model="addData.status" title="上架" checked>
+                            <input type="radio" name="status" value="1" lay-filter="status" v-model="addData.status" title="下架">
                         </div>
                     </div>
 
                     <div class="layui-form-item">
                         <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                            <button class="layui-btn" lay-submit>立即提交</button>
                             <button type="reset" class="layui-btn layui-btn-primary">重置</button>
                         </div>
                     </div>
@@ -248,6 +247,14 @@
             app = new Vue({
                 el:'#app',
                 data:{
+                    addData:{
+                            goods_name:'',
+                            category_id:'',
+                            thumbnail:'',
+                            details:'',
+                            is_top:0,
+                            recommended:0
+                        }, //商品添加数据
                     addSkuData:[
                         /*{
                             sku_name:'颜色',
@@ -271,9 +278,10 @@
                                 }
                             ]
                         }*/
-                    ],
-                    tableData:[],
+                    ],//全部规格数据
+                    tableData:[], // 最终生成的表单数据
                     indexArr:[],
+                    skuName:[], //对应的规格键名
                     count:0,
                     hasMaxSku:false
                 },
@@ -287,10 +295,11 @@
                             else{
                                 that.hasMaxSku = false;
                             }
+
+                            console.log('val change');
                             that.initTableData();
-                            that.getSkuNextItem(val,0);
                         },
-                        deep:true
+                        //deep:true
                     }
                 },
                 mounted(){
@@ -304,47 +313,60 @@
                             var form = layui.form,
                                 layer = layui.layer;
                             var layedit = layui.layedit;
-                            layedit.build('details', {
+                            var index = layedit.build('details', {
                                 height: 150
                             }); //建立编辑器
-                            //自定义验证规则
-                            form.verify({
-                                nikename: function (value) {
-                                    if (value.length < 5) {
-                                        return '昵称至少得5个字符啊';
-                                    }
-                                },
-                                pass: [/(.+){6,12}$/, '密码必须6到12位'],
-                                repass: function (value) {
-                                    if ($('#L_pass').val() != $('#L_repass').val()) {
-                                        return '两次密码不一致';
-                                    }
-                                }
+
+                            //监听checkbox is_top
+                            form.on('checkbox(is_top)', function(data){
+                                that.addData.is_top = data.elem.checked ? 1 : 0;
+                            });
+
+                            //监听checkbox recommended
+                            form.on('checkbox(recommended)', function(data){
+                                that.addData.recommended = data.elem.checked ? 1 : 0;
+                            });
+
+                            //radio status
+                            form.on('radio(status)', function(data){
+                                that.addData.status = data.value;
                             });
 
                             //监听提交
                             form.on('submit(add)',function (data) {
-                                console.log(data);
+                                that.addData.details = layedit.getContent(index);
+
+                                console.log(that.tableData);
+                                console.log(that.skuName);
+                                that.addData.tableData = that.tableData;
+                                that.addData.skuName = that.skuName;
+                                console.log(that.addData);
                                 //发异步，把数据提交给php
-                                layer.alert("增加成功", {
-                                        icon: 6
-                                    },
-                                    function () {
-                                        //关闭当前frame
-                                        xadmin.close();
-                                        // 可以对父窗口进行刷新
-                                        xadmin.father_reload();
-                                    });
+                                var url = "{:url('admin/goods/addPost')}";
+                                var data = that.addData;
+                                $.post(url,data,function (res) {
+                                    console.log(res);
+                                })
                                 return false;
                             });
                         });
                     },
-                    initTableData:function(){
+                    initTableData:function(val = ''){
+                        var that = this;
+                        if (val == ''){
+                            val = that.addSkuData;
+                        }
                         this.tableData = [];
                         this.indexArr = [];
                         this.count = 0;
+                        that.skuName = [];
+                        for (i in val){
+                            that.skuName[i] = val[i].sku_name;
+                        }
+                        that.getSkuNextItem(val,0);
                     },
                     getCategoryId:function () {
+                        var that = this;
                         var url = "{:url('admin/goods_category/category_api')}";
                         console.log(window.parent.document);
                         var parent = window.parent;
@@ -367,7 +389,8 @@
                                 var category_ids = category['category_ids'] ;
                                 var category_names = category['category_names'] ;
                                 $("#goods_category").val(category_names);
-                                $("#category_id").val(category_ids);
+                                //$("#category_id").val(category_ids);
+                                that.addData.category_id = category_ids;
                                 parent.layer.close(index); //如果设定了yes回调，需进行手工关闭
                             }
                         });
@@ -431,28 +454,32 @@
                         if (value == ''){
                             this.deleteSkuItem(index,i);
                         }
-                    }
-
-                    /*getSkuNextItem:function (val,index) {
+                    },
+                    //上传图片继承
+                    uploadPic:function(id,multi = ''){
                         var that = this;
-                        //第1次循环
-                        if (index == 0){
-                            for (var i = 0; i < val[index]['sku_attr'].length; i++) {
-                                // console.log(val[index]['sku_attr'][i].value);
-
-                                //第二次循环
-                                for (var j = 0; j < val[Number(index)+1]['sku_attr'].length; j++){
-                                    //console.log(val[Number(index)+1]['sku_attr'][j].value);
-
-                                    //第三次循环
-                                    for (var k = 0; k < val[Number(index)+2]['sku_attr'].length; k++){
-                                        console.log([val[index]['sku_attr'][i].value,val[Number(index)+1]['sku_attr'][j].value,val[Number(index)+2]['sku_attr'][k].value]);
-                                        data.push([val[index]['sku_attr'][i].value,val[Number(index)+1]['sku_attr'][j].value,val[Number(index)+2]['sku_attr'][k].value]);
-                                    }
-                                }
+                        var url = "{:url('admin/storage/add')}";
+                        uploadConfig['multi'] = multi;
+                        layer.open({
+                            type: 2,
+                            area: ['600px', '400px'],
+                            title:'添加图片',
+                            content: [url, 'no'], //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                            btn:['确认','取消'],
+                            fixed:true,
+                            resize:false,
+                            yes: function(index, layero){
+                                //do something
+                                //var body = layer.getChildFrame('body', index);
+                                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                                var picStr = iframeWin.getJsonStr();
+                                console.log(picStr);
+                                $("#thumbnail_prev").attr('src',picStr);
+                                that.addData.thumbnail = picStr;
+                                layer.close(index); //如果设定了yes回调，需进行手工关闭
                             }
-                        }
-                    }*/
+                        });
+                    }
                 }
             });
         })
