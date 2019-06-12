@@ -1,0 +1,98 @@
+<include file="public/head"/>
+<title>添加商品-火箭商城管理系统</title>
+<style>
+</style>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab">
+                        <ul class="layui-tab-title">
+                            <li><a href="{:url('admin/slider/index')}">幻灯片列表</a></li>
+                            <li><a href="{:url('admin/slider/add')}">添加幻灯片</a></li>
+                            <li class="layui-this"><a href="javascript:;">编辑幻灯片</a></li>
+                        </ul>
+                        <div style="padding-top: 15px;padding-bottom: 15px;">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-fluid" id="app">
+                                    <div class="layui-row layui-col-space15">
+                                        <div class="layui-col-md8">
+                                            <form action="" class="layui-form">
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label" for="name"><span
+                                                            class="x-red">*</span>名称</label>
+                                                    <div class="layui-input-block">
+                                                        <input type="hidden" autocomplete="off" class="layui-input" id="id"
+                                                               name="id" value="{$data.id}"
+                                                               placeholder="" required type="hidden">
+                                                        <input autocomplete="off" class="layui-input" id="name"
+                                                               lay-verify="required"
+                                                               name="name"
+                                                               placeholder="" value="{$data.name}" required type="text">
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label" for="description">描述</label>
+                                                    <div class="layui-input-block">
+                                                        <textarea class="layui-textarea" id="description"
+                                                                  name="description">{$data.description}</textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-block">
+                                                        <button class="layui-btn" lay-submit lay-filter="add">立即提交</button>
+                                                        <a class="layui-btn layui-btn-primary"
+                                                           href="{:url('admin/slider/index')}">返回</a>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<include file="public/scripts"/>
+<script>
+    //监听提交
+    $(function () {
+        layui.use(['form', 'layer', 'jquery'], function () {
+            $ = layui.jquery;
+            var form = layui.form, layer = layui.layer;
+            form.on('submit(add)', function (data) {
+                data = data.field;
+                console.log(data);
+                //发异步，把数据提交给php
+                var url = "{:url('admin/slider/editPost')}";
+                $.post(url, data, function (res) {
+                    //console.log(res);
+                    if (res.code == 1){
+                        layer.msg(
+                            res.msg,
+                            {
+                                time:1500
+                            },
+                            function(){
+                                //do something
+                                window.location.reload();
+                            });
+                    }
+                })
+                return false;
+            });
+        });
+    });
+
+</script>
+</html>

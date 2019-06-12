@@ -27,8 +27,9 @@ class StorageController extends AdminBaseController
         $path = "/public/uploads/";
         $info = $file->move( APP_ROOT.$path);
         if($info){
+           $path = str_replace('\\', '/', $info->getSaveName());
             // 成功上传后 获取上传信息
-            $this->success("上传成功",'',['filename'=> $info->getFilename(),'path'=> $info->getSaveName()]);
+           $this->success("上传成功",'',['filename'=> $info->getFilename(),'path'=>$path]);
         }else{
             // 上传失败获取错误信息
             echo $file->getError();

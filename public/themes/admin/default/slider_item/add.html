@@ -1,0 +1,151 @@
+<include file="public/head"/>
+<title>添加幻灯片列表-火箭商城管理系统</title>
+<style>
+</style>
+<body>
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-body">
+                    <div class="layui-tab">
+                        <ul class="layui-tab-title">
+                            <li><a href="{:url('admin/slider_item/index',array('slide_id'=>$slide_id))}">幻灯片页面列表</a></li>
+                            <li class="layui-this"><a href="javascript:;">添加幻灯片页面</a></li>
+                        </ul>
+                        <div style="padding-top: 15px;padding-bottom: 15px;">
+                            <div class="layui-tab-item layui-show">
+                                <div class="layui-fluid" id="app">
+                                    <div class="layui-row layui-col-space15">
+                                        <div class="layui-col-md8">
+                                            <form action="" class="layui-form">
+                                                <div class="layui-form-item">
+                                                    <input type="hidden" autocomplete="off" class="layui-input" id="slide_id"
+                                                           name="slide_id" value="{$slide_id}"/>
+                                                    <label class="layui-form-label" for="title"><span
+                                                            class="x-red">*</span>标题</label>
+                                                    <div class="layui-input-block">
+                                                        <input autocomplete="off" class="layui-input" id="title"
+                                                               lay-verify="required"
+                                                               name="title"
+                                                               placeholder="" required type="text">
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label" for="url">链接</label>
+                                                    <div class="layui-input-block">
+                                                        <input autocomplete="off" class="layui-input" id="url"
+                                                               name="url"
+                                                               placeholder="" required type="text">
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label">缩略图</label>
+                                                    <div class="layui-input-block">
+                                                        <div class="layui-col-md6">
+                                                            <label style="width: auto;padding-left: 0;" class="layui-form-label">PC端</label>
+                                                            <div onclick="uploadPic('#pc_image')" class="wrap_img">
+                                                                <img style="width: 200px" id="pc_image_prev" src="__TMPL__/assets/images/default-thumbnail.png" alt="">
+                                                            </div>
+                                                            <input type="hidden" id="pc_image" name="pc_image"
+                                                                   placeholder="请选择缩略图" autocomplete="off"v-model="addData.thumbnail" class="layui-input">
+                                                        </div>
+                                                        <div class="layui-col-md6">
+                                                            <label style="width: auto;padding-left: 0;" class="layui-form-label">移动端</label>
+                                                            <div onclick="uploadPic('#mobile_image')" class="wrap_img">
+                                                                <img style="width: 200px" id="mobile_image_prev" src="__TMPL__/assets/images/default-thumbnail.png" alt="">
+                                                            </div>
+                                                            <input type="hidden" id="mobile_image" name="mobile_image"
+                                                                   placeholder="请选择缩略图" autocomplete="off"v-model="addData.thumbnail" class="layui-input">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <label class="layui-form-label" for="description">描述</label>
+                                                    <div class="layui-input-block">
+                                                        <textarea class="layui-textarea" id="description"
+                                                                  name="description"></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="layui-form-item">
+                                                    <div class="layui-input-block">
+                                                        <button class="layui-btn" lay-submit lay-filter="add">立即提交</button>
+                                                        <a class="layui-btn layui-btn-primary"
+                                                           href="{:url('admin/slider_item/index')}">返回</a>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<include file="public/scripts"/>
+<script>
+    //监听提交
+    $(function () {
+        layui.use(['form', 'layer', 'jquery'], function () {
+            $ = layui.jquery;
+            var form = layui.form, layer = layui.layer;
+            form.on('submit(add)', function (data) {
+                data = data.field;
+                console.log(data);
+                //发异步，把数据提交给php
+                var url = "{:url('admin/slider_item/addPost')}";
+                $.post(url, data, function (res) {
+                    //console.log(res);
+                    if (res.code == 1){
+                        layer.msg(
+                            res.msg,
+                            {
+                            time:1500
+                            },
+                            function(){
+                            //do something
+                            window.location.reload();
+                        });
+                    }
+                })
+                return false;
+            });
+        });
+    });
+
+    function uploadPic(id,multi = ''){
+        var that = this;
+        var url = "{:url('admin/storage/add')}";
+        uploadConfig['multi'] = multi;
+        layer.open({
+            type: 2,
+            area: ['600px', '400px'],
+            title:'添加图片',
+            content: [url, 'no'], //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+            btn:['确认','取消'],
+            fixed:true,
+            resize:false,
+            yes: function(index, layero){
+                //do something
+                //var body = layer.getChildFrame('body', index);
+                var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                var picStr = iframeWin.getJsonStr();
+                $(id+"_prev").attr('src',picStr);
+                $(id).val(picStr);
+                layer.close(index); //如果设定了yes回调，需进行手工关闭
+            }
+        });
+    }
+
+</script>
+</html>

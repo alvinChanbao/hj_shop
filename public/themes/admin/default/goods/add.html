@@ -91,7 +91,7 @@
     <div id="app" class="layui-fluid">
         <div class="layui-row layui-col-space15">
             <div class="layui-col-md10">
-                <form class="layui-form" action=""  lay-filter="add">
+                <form class="layui-form" action="">
                     <div class="layui-form-item">
                         <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>商品名称</label>
                         <div class="layui-input-block">
@@ -229,7 +229,7 @@
 
                     <div class="layui-form-item">
                         <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit>立即提交</button>
+                            <button class="layui-btn" lay-submit lay-filter="add">立即提交</button>
                             <button type="reset" class="layui-btn layui-btn-primary">重置</button>
                         </div>
                     </div>
@@ -345,7 +345,18 @@
                                 var url = "{:url('admin/goods/addPost')}";
                                 var data = that.addData;
                                 $.post(url,data,function (res) {
-                                    console.log(res);
+                                    //console.log(res);
+                                    if (res.code == 1){
+                                        layer.msg(
+                                            res.msg,
+                                            {
+                                                time:1500
+                                            },
+                                            function(){
+                                                //do something
+                                                window.location.reload();
+                                            });
+                                    }
                                 })
                                 return false;
                             });

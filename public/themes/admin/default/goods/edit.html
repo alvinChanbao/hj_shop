@@ -1,0 +1,623 @@
+<include file="public/head"/>
+<title>添加商品-火箭商城管理系统</title>
+<style>
+    body{
+        background: #fff;
+    }
+    .wrap_img {
+        width: 150px;
+    }
+
+    .wrap_img img {
+        width: 100%;
+    }
+
+    .sku_item{
+        background: #eee;margin: 10px;
+    }
+
+    .bg_white{
+        background: #fff;
+    }
+
+    .sku_item .left_name{
+        display: inline-block;
+    }
+
+    .sku_item .right_box{
+        width: calc(100% - 100px);
+        display: inline-block;
+    }
+    .sku_item .right_box input{
+        width: 180px;
+        max-width: 90%;
+        display: inline-block;
+    }
+
+    .sku_item .right_box .layui-col-xs3{
+        margin-top: 10px;
+    }
+
+    .sku_item .right_box .layui-col-xs3:nth-child(-n+4){
+        margin-top: 0px;
+    }
+
+    .closeBtn{
+        position: absolute;
+        right: 15px;
+        display: inline-block;
+        width: 25px;
+        height: 25px;
+        background: #ddd;
+        border-radius: 50%;
+        line-height: 25px;
+        text-align: center;
+        color: #fff;
+        top: 16px;
+        cursor: pointer;
+    }
+
+    .addSkuBtn{
+        height: 38px;
+        line-height: 38px;
+        color: #009688;
+    }
+
+    .skuCloseBtn{
+        position: absolute;
+        top: -7px;
+        left: 80%;
+        width: 20px;
+        height: 20px;
+        background: #ddd;
+        line-height: 20px;
+        text-align: center;
+        color: #fff;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .skuCloseBtn i{
+        font-size: 12px;
+    }
+
+    .layui-table input{
+        height: 30px;
+    }
+
+</style>
+</head>
+<body>
+<div id="app" class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md10">
+            <form class="layui-form" action=""  lay-filter="add">
+                <div class="layui-form-item">
+                    <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>商品名称</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="goods_name" name="goods_name" required lay-verify="required"
+                               placeholder="请输入标题" autocomplete="off" v-model="addData.goods_name" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label for="goods_name" class="layui-form-label"><span class="x-red">*</span>分类名称</label>
+                    <div class="layui-input-block">
+                        <input @click='getCategoryId' readonly style="width: 200px;" required  lay-verify="required" type="text" value="{$data.category_name}" id="goods_category" name="goods_category" placeholder="请选择商品类目" autocomplete="off" class="layui-input">
+                        <input id="category_id" type="hidden" v-model="addData.category_id" name="category_id">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">缩略图</label>
+                    <div class="layui-input-block">
+                        <div @click="uploadPic('#thumbnail')" class="wrap_img">
+                            <empty name="data['thumbnail']">
+                                <img id="thumbnail_prev" src="__TMPL__/assets/images/default-thumbnail.png" alt="">
+                                <else/>
+                                <img id="thumbnail_prev" src="{$data['thumbnail']}" alt="">
+                            </empty>
+                        </div>
+                        <input type="hidden" id="thumbnail" name="thumbnail"
+                               placeholder="请选择缩略图" autocomplete="off"v-model="addData.thumbnail" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">商品规格</label>
+                    <div style="background: #fff;border: 1px #eee solid" class="layui-input-block">
+                        <div class="sku_item">
+
+                            <template v-for="(item,index)  in addSkuData">
+                                <template v-if="item.is_del == 0">
+                                    <div class="item_list">
+                                        <div style="padding: 10px;position: relative">
+                                            <div class="left_name">
+                                                <label >规格名：</label>
+                                            </div>
+                                            <div class="right_box">
+                                                <input @focus="get_sku_name" @change="setSkuName(index,$event)" style="width: 200px;display: inline-block" type="text" :data-name="item.sku_name" value="item.sku_name" placeholder="请输入规格名" v-model="item.sku_name" autocomplete="off" class="layui-input">
+                                                <div @click="deleteAddSkuItem(index)" class="closeBtn"><i class="icon iconfont">&#xe69a;</i></div>
+                                            </div>
+                                        </div>
+                                        <div class="bg_white" style="padding: 10px" v-if="item.sku_name != ''">
+                                            <div style="position: relative;bottom: 15px;" class="left_name">
+                                                <label>规格值：</label>
+                                            </div>
+                                            <div class="right_box">
+                                                <div class="layui-row">
+                                                    <template v-for="(itemAttr,i) in item.sku_attr">
+                                                        <div v-if="itemAttr.is_del == 0" class="layui-col-xs3">
+                                                            <div style="position: relative;width: 180px;max-width: 90%;">
+                                                                <input @blur="getValue(index,i,$event)" @change="initTableData()" type="text" placeholder="请输入规格值" autocomplete="off" class="layui-input" value="itemAttr.value" v-model="itemAttr.value">
+                                                                <div @click="deleteSkuItem(index,i)" class="skuCloseBtn"><i class="icon iconfont">&#xe69a;</i></div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                    <div class="layui-col-xs3">
+                                                        <a @click="addSkuAttrItem(index,$event)" class="addSkuBtn" href="javascript:;">添加规格值</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                            </template>
+
+                            <div style="padding: 10px;margin-top: 0;" class="sku_item">
+                                <button type="button" @click="addSkuItem" class="layui-btn"  :disabled="hasMaxSku ? 'disabled':false " :class="hasMaxSku ? 'layui-btn-disabled':''">添加规格</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-if="tableData.length > 0" class="layui-form-item">
+                    <label class="layui-form-label">规格明细</label>
+                    <div class="layui-input-block">
+                        <table class="layui-table">
+                            <colgroup>
+
+                            </colgroup>
+                            <thead>
+                            <tr>
+                                <template v-for="(item,index) in addSkuData">
+                                    <template v-if="item.is_del == 0 && item.sku_attr.length > 0">
+                                        <th>{{item.sku_name}}</th>
+                                    </template>
+                                </template>
+                                <th>价格（元）</th>
+                                <th>库存</th>
+                                <th>规格编码</th>
+                                <th>成本价</th>
+                                <th>销量</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <template v-for="(item,index)  in tableData" v-if="item.is_del == 0">
+                                <tr>
+                                    <template v-for="(itemAttr,index)  in item.sku">
+
+                                         <td v-if="itemAttr.is_del == 0">{{itemAttr.value}}</td>
+
+                                    </template>
+                                    <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.price" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.SalesVolume" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.specNum" autocomplete="off" class="layui-input"></td>
+                                    <td><input type="text" required  lay-verify="required" placeholder="" v-model="item.costPrice" autocomplete="off" class="layui-input"></td>
+                                    <td>{{item.stock}}</td>
+                                </tr>
+                            </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">商品详情</label>
+                    <div class="layui-input-block">
+                        <textarea id="details" style="display: none;" v-model="addData.details">{{addData.details}}</textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">推荐设置</label>
+                    <div class="layui-input-block">
+                        <input type="checkbox" name="is_top" value="1"  title="置顶" lay-filter="is_top" <eq name="data['is_top']" value="1">checked</eq> >
+                        <input type="checkbox" name="recommended" value="1" title="推荐" lay-filter="recommended" <eq name="data['recommended']" value="1">checked</eq> >
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="status" value="0" lay-filter="status" title="上架" <eq name="data['status']" value="0">checked</eq>>
+                        <input type="radio" name="status" value="1" lay-filter="status" title="下架" <eq name="data['status']" value="1">checked</eq>>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit>立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<include file="public/scripts"/>
+<script>
+    console.log({$data['tableData'] | json_encode | raw});
+    var app;
+    var data = [];
+    $(function () {
+        app = new Vue({
+            el:'#app',
+            data:{
+                addData:{
+                    id:'{$data.id}',
+                    goods_name:'{$data.goods_name}',
+                    category_id:'{$data.category_id}',
+                    thumbnail:'{$data.thumbnail}',
+                    details:'{$data.details | raw}',
+                    is_top:'',
+                    recommended:'',
+                    status:'{$data.status}'
+                }, //商品添加数据
+                addSkuData:{$data['addData'] | json_encode | raw},//全部规格数据
+                cacheAddSkuData:{$data['addData'] | json_encode | raw},
+                tableData:{$data['tableData'] | json_encode | raw}, // 最终生成的表单数据
+                cacheTableData:{$data['tableData'] | json_encode | raw},
+                indexArr:[],
+                skuName:{$data['skuName'] | json_encode | raw}, //对应的规格键名
+                count:0,
+                hasMaxSku:false,
+                sku_name:''
+            },
+            watch:{
+                addSkuData:{
+                    handler(val,old){
+                        var that = this;
+
+                        //获取未删除的arr长度
+                        var showArr = [];
+
+                        for(var i in val){
+                            if (val[i].is_del == 0){
+                                showArr.push(val)
+                            }
+                        }
+
+                        if (showArr.length >= 3){
+                            that.hasMaxSku = true;
+                        }
+
+                        else{
+                            that.hasMaxSku = false;
+                        }
+
+                        that.initTableData();
+
+                    },
+                    deep:true
+                }
+            },
+            mounted(){
+                this.init();
+            },
+            methods:{
+                init:function(){
+                    var that = this;
+                    layui.use(['form', 'layer', 'jquery', 'layedit'],function () {
+                        $ = layui.jquery;
+                        var form = layui.form,
+                            layer = layui.layer;
+                        var layedit = layui.layedit;
+                        var index = layedit.build('details', {
+                            height: 150
+                        }); //建立编辑器
+
+                        //监听checkbox is_top
+                        form.on('checkbox(is_top)', function(data){
+                            that.addData.is_top = data.elem.checked ? 1 : 0;
+                        });
+
+                        //监听checkbox recommended
+                        form.on('checkbox(recommended)', function(data){
+                            that.addData.recommended = data.elem.checked ? 1 : 0;
+                        });
+
+                        //radio status
+                        form.on('radio(status)', function(data){
+                            that.addData.status = data.value;
+                        });
+
+                        //监听提交
+                        form.on('submit(add)',function (data) {
+                            that.addData.details = layedit.getContent(index);
+
+                            console.log(that.tableData);
+                            console.log(that.skuName);
+                            that.addData.tableData = that.tableData;
+                            that.addData.skuName = that.skuName;
+                            console.log(that.addData);
+                            //发异步，把数据提交给php
+                            var url = "{:url('admin/goods/editPost')}";
+                            var data = that.addData;
+                            $.post(url,data,function (res) {
+                                //console.log(res);
+                                if (res.code == 1){
+                                    layer.msg(
+                                        res.msg,
+                                        {
+                                            time:1500
+                                        },
+                                        function(){
+                                            //do something
+                                            window.location.reload();
+                                        });
+                                }
+                            })
+                            return false;
+                        });
+                    });
+                },
+                //设置规格键值
+                setSkuName:function(index,e){
+
+                    var that = this;
+                    var addSkuData = this.addSkuData;
+
+                    //console.log(e);
+                    if (e.target.value == '' && addSkuData[index].id == ''){
+                        addSkuData.splice(index,1);
+                    }
+                    if (e.target.value == ''&& addSkuData[index].id != '' ){
+                        addSkuData[index].sku_name =that.sku_name;
+                        addSkuData[index].is_del = 1;
+                    }
+
+                    for(var i in addSkuData){
+
+                        if (addSkuData[i].sku_name == e.target.value && addSkuData[i].is_del == 1){
+                            addSkuData[i].is_del = 0;
+                            addSkuData.splice(index,1);
+                        }
+
+                    }
+
+                   that.addSkuData = addSkuData;
+
+
+                },
+
+                get_sku_name:function(e){
+                    ///console.log(e.target.value);
+                    this.sku_name = e.target.value;
+                },
+                initTableData:function(val = ''){
+                    var that = this;
+                    if (val == ''){
+                        console.log(that.addSkuData);
+                        val = that.addSkuData;
+                    }
+                    this.tableData = [];
+                    this.indexArr = [];
+                    this.count = 0;
+                    that.skuName = [];
+                    for (i in val){
+                        that.skuName[i] = {
+                            id:val[i].id ? val[i].id : '',
+                            is_del: val[i].is_del == 0 ? 0 : 1,
+                            sku_name:val[i].sku_name,
+                        };
+                    }
+                    that.getSkuNextItem(val,0);
+                },
+                getCategoryId:function () {
+                    var that = this;
+                    var url = "{:url('admin/goods_category/category_api')}";
+                    console.log(window.parent.document);
+                    var parent = window.parent;
+                    parent.layer.open({
+                        type: 2,
+                        area: ['95%','90%'],
+                        title:'选择类目',
+                        content: url, //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                        btn:['确认','取消'],
+                        fixed:true,
+                        resize:false,
+                        move:false,
+                        yes: function(index, layero){
+                            //do something
+                            console.log(window.parent.document);
+                            //var body = window.parent.layer.getChildFrame('body', index);
+                            iframeWin = window.parent.window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                            var category = iframeWin.getCheckValue();
+                            console.log(category);
+                            var category_ids = category['category_ids'] ;
+                            var category_names = category['category_names'] ;
+                            $("#goods_category").val(category_names);
+                            //$("#category_id").val(category_ids);
+                            that.addData.category_id = category_ids;
+                            parent.layer.close(index); //如果设定了yes回调，需进行手工关闭
+                        }
+                    });
+                },
+                //动态添加规格
+                addSkuItem:function () {
+                    var that = this;
+                    var data = {
+                        id:'',
+                        is_del:0,
+                        sku_name:'',
+                        sku_attr:[]
+                    }
+                    that.addSkuData.push(data);
+                },
+                //删除当前一项规格
+                deleteAddSkuItem:function (index) {
+                    //console.log(index);
+                    var that = this;
+
+                    console.log(that.addSkuData[index].id);
+
+                    if (that.addSkuData[index].id == ''){
+                        that.addSkuData.splice(index,1);
+                    } else{
+                        that.addSkuData[index].is_del = 1;
+                    }
+                    
+
+                    //that.addSkuData.splice(index,1);
+                },
+                //添加attr一项规格
+                addSkuAttrItem:function (index,e) {
+
+                    var that = this;
+                    var arr = {
+                        id:'',
+                        is_del:0,
+                        value:''
+                    };
+                    that.addSkuData[index]['sku_attr'].push(arr);
+                },
+                //删除点中的attr
+                deleteSkuItem:function (index,i) {
+                    var that = this;
+                    that.addSkuData[index]['sku_attr'][i]['is_del'] = 1;
+                    //console.log( that.addSkuData[index]);
+                    if (that.addSkuData[index]['sku_attr'][i]['id'] == ''){
+                        that.addSkuData[index]['sku_attr'].splice(i,1);
+                    }
+                },
+                //递归获取子项内容
+                getSkuNextItem:function (val,index) {
+
+                    //重新获取最终的val
+                    var my_val= [];
+                    for (var i in val){
+                        if (val[i].is_del == 0 && val[i].sku_attr.length > 0){
+                            my_val.push(val[i]);
+                        }
+                    }
+                    val = my_val;
+                    if (val.length == 0) {
+                        return;
+                    }
+
+                    var that = this;
+                    var length = val[index]['sku_attr'].length;
+                    var levelUp = index + 1;
+
+                    for (var i = 0; i < length; i++) {
+                        var is_del = 0;
+                        if (val[index]['is_del'] == 0){
+                            is_del = val[index]['sku_attr'][i]['is_del'] == 1 ? 1 : 0;
+                        }
+                        else{
+                            val[index]['sku_attr'][i]['is_del'] = 1;
+                            is_del = 1;
+                        }
+
+                        that.indexArr[index] =  {
+                            'is_del':is_del,
+                            'value':val[index]['sku_attr'][i]['value']
+                        };
+
+                        if (levelUp == val.length){
+                            var count = that.count;
+                            //console.log(count);
+                            console.log(count,that.cacheTableData[count]);
+                            if (that.cacheTableData[count] != undefined){
+                                var obj = {'id':that.cacheTableData[count].id,'is_del': 0 , 'sku': that.indexArr.slice(0), 'price': that.cacheTableData[count]['price'], 'stock': that.cacheTableData[count]['stock'], 'specNum': that.cacheTableData[count]['specNum'], 'costPrice': that.cacheTableData[count]['costPrice'], 'SalesVolume': that.cacheTableData[count]['SalesVolume'] }
+                            }
+                            else{
+                                var obj = {'id':'','is_del': 0 , 'sku': that.indexArr.slice(0), 'price': '0', 'stock': '0', 'specNum': '0', 'costPrice': '0', 'SalesVolume': '0' }
+                            }
+
+                            //console.log(val[index]);
+
+                            if (val[index]['is_del'] == 1 || val[index]['sku_attr'][i]['is_del'] == 1) {
+                                //continue;
+                                obj.is_del = 1;
+                            }
+
+                            console.log(obj);
+                            if (that.tableData[count] === undefined) {
+                                that.tableData.push(obj)
+                            }
+                            // else{
+                            //     that.tableData[count] = obj
+                            // }
+                            this.count = count + 1
+                        }
+
+                        console.log("------------",levelUp,val.length,levelUp < val.length);
+
+                        if (levelUp < val.length){
+                            that.getSkuNextItem(val,levelUp);
+                        }
+                        else{
+                            //that.cacheTableData = [];
+                        }
+                    }
+                },
+                //获取当前值是否为空
+                getValue:function (index,i,event) {
+                    var that = this;
+                    var value = event.target.value;
+
+                    //console.log(value);
+
+                    if (value == ''){
+                        this.deleteSkuItem(index,i);
+                    }
+
+                    for (var k in that.addSkuData[index]['sku_attr']){
+                        console.log(that.addSkuData[index]['sku_attr'][k],value);
+
+                        if (that.addSkuData[index]['sku_attr'][k]['value'] == value && that.addSkuData[index]['sku_attr'][k]['is_del'] == 1){
+                            that.addSkuData[index]['sku_attr'][k]['is_del'] = 0;
+                            that.addSkuData[index]['sku_attr'].splice(i,1);
+                        }
+                    }
+
+                    that.initTableData();
+
+
+
+                },
+                //上传图片继承
+                uploadPic:function(id,multi = ''){
+                    var that = this;
+                    var url = "{:url('admin/storage/add')}";
+                    uploadConfig['multi'] = multi;
+                    layer.open({
+                        type: 2,
+                        area: ['600px', '400px'],
+                        title:'添加图片',
+                        content: [url, 'no'], //这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                        btn:['确认','取消'],
+                        fixed:true,
+                        resize:false,
+                        yes: function(index, layero){
+                            //do something
+                            //var body = layer.getChildFrame('body', index);
+                            var iframeWin = window[layero.find('iframe')[0]['name']]; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                            var picStr = iframeWin.getJsonStr();
+                            console.log(picStr);
+                            $("#thumbnail_prev").attr('src',picStr);
+                            that.addData.thumbnail = picStr;
+                            layer.close(index); //如果设定了yes回调，需进行手工关闭
+                        }
+                    });
+                }
+            }
+        });
+    })
+
+</script>
+</html>

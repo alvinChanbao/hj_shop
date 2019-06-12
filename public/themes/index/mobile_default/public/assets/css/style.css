@@ -1,0 +1,95 @@
+a{
+  color: #333;
+}
+
+.hj_relative{
+  position: relative;
+}
+
+.hj_flex{
+  display: flex;
+}
+
+.hj_flex_1{
+  flex: 1;
+}
+
+.hj_flex_coloum{
+  display: flex;
+  flex-direction: column;
+}
+
+.hj_align_items_center{
+  align-items: center;
+}
+
+.fs20{
+  font-size: 1rem;
+}
+
+.hj_margin_0{
+  margin: 0 !important;
+}
+
+.hj_padded_t_5{
+  padding-top: 0.25rem;
+}
+
+.hj_padded_t_10{
+  padding-top: 0.5rem;
+}
+
+.hj_padded_0{
+  padding: 0;
+}
+
+.hj_padded_0_2-5{
+  padding: 0 0.25rem;
+}
+
+.hj_padded_0_15{
+  padding: 0 0.75rem;
+}
+
+.hj_padded_2d5_0{
+  padding:  0.25rem 0;
+}
+
+.hj_padded_5_0{
+  padding:  0.5rem 0;
+}
+
+.hj_padded_10_0{
+  padding:  0.75rem 0;
+}
+
+.hj_padded_15_0{
+  padding:  1rem 0;
+}
+
+
+.hj_list{
+  display: flex
+}
+
+.img_wrap img{
+  width: 100%;
+}
+
+.hj_ellipsis_1{
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.hj_ellipsis_2{
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  display:-webkit-box; 
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2; 
+}
+
+.bg-white{
+  background-color: #fff;
+}

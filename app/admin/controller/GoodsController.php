@@ -66,4 +66,63 @@ class GoodsController extends AdminBaseController
           sku_id key_id value_id
        */
     }
+
+    /*
+  * @Date：2019-06-03
+  * @Title:编辑商品
+  * @Author：Frank_dai
+  * */
+    public function edit()
+    {
+        $id = Request::param('id');
+        if(!$id){
+            $this->error("id不能为空！");
+        }
+
+        $goodsModel = new GoodsModel();
+        $data = $goodsModel->getAllDataById($id);
+        $this->assign('data',$data);
+        return $this->fetch();
+
+    }
+
+    /*
+   * @Date：2019-06-08
+   * @Title:设置商品提交
+   * @Author：Frank_dai
+   * */
+    public function editPost()
+    {
+        $data = Request::param();
+        //print_r($data);
+        $goodsModel = new GoodsModel();
+        $res = $goodsModel->editData($data);
+
+        if ($res != false){
+            $this->success("修改成功");
+        }
+    }
+
+    /*
+   * @Date：2019-06-03
+   * @Title:设置商品上下架
+   * @Author：Frank_dai
+   * */
+    public function setGoodsStatus()
+    {
+        $id = Request::param('id');
+        if(!$id){
+            $this->error("id不能为空！");
+        }
+        $goodsModel = new GoodsModel();
+        $res = $goodsModel->setGoodsStatus($id);
+        if ($res){
+            $this->success('更新成功');
+        }
+        else{
+            $this->error('更新失败');
+        }
+    }
+
+
 }

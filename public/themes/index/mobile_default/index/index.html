@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <include file="public/head"/>
+  <title>光大国旅</title>
+  <style>
+    .swiper-container-horizontal>.swiper-pagination {
+      bottom: 0;
+    }
+
+    .swiper-container {
+      padding-bottom: 0;
+    }
+
+    .swiper-wrapper .swiper-slide img {
+      width: 100%;
+    }
+
+    #recomment .hj_list .hj_title {
+      font-size: 0.7rem;
+    }
+
+    #index-nav .iconfont{
+      font-size: 1.2rem;
+    }
+
+    #index-nav .tab-label{
+      font-size: 0.7rem;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="page-group">
+    <div class="page page-current">
+
+
+      <div class="content">
+        <!-- Slider -->
+        <include file="public/slider"/>
+        <!-- 四格导航 -->
+        <div id="index-nav" class="bg-white">
+        <div class="content-padded hj_padded_2d5_0">
+          <div class="row">
+            <div class="col-25">
+              <div>
+                <a class="hj_flex_coloum hj_align_items_center" href="#">
+                  <span class="icon iconfont icondetail"></span>
+                  <span class="tab-label">资讯</span>
+                </a>
+              </div>
+            </div>
+            <div class="col-25">
+              <div>
+                <a class="hj_flex_coloum hj_align_items_center" href="#">
+                  <span class="icon iconfont iconcompass"></span>
+                  <span class="tab-label">活动</span>
+                </a>
+              </div>
+            </div>
+            <div class="col-25">
+              <div>
+                <a class="hj_flex_coloum hj_align_items_center" href="#">
+                    <span class="icon iconfont iconshop"></span>
+                  <span class="tab-label">酒店</span>
+                </a>
+              </div>
+            </div>
+            <div class="col-25">
+              <div>
+                <a class="hj_flex_coloum hj_align_items_center" href="#">
+                    <span class="icon iconfont iconmoneycollect"></span>
+                  <span class="tab-label">分销</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- 推荐列表 -->
+        <div id="recomment" class="content_list hj_padded_0_15 bg-white">
+          <div class="hj_flex hj_align_items_center hj_padded_t_10">
+            <h2 class="hj_flex_1 fs20 hj_margin_0">最新推荐</h2>
+            <a href="#">全部  <span class="icon iconfont iconright"></span></a>
+          </div>
+
+          <div class="hj_padded_5_0 grid-recomment">
+            <div class="row">
+              <div class="col-50">
+                <div class="hj_list hj_flex_coloum">
+                  <div class="img_wrap">
+                    <img src="__TMPL__/assets/img/l1.jpeg" alt="">
+                  </div>
+                  <div class="hj_title hj_ellipsis_2">
+                    最高立减1500+免费升级豪华泳池水上别墅+免费升级三餐+赠双人出海垂钓·上海出发马尔代夫波杜希蒂岛7天自由行（儿童吃住免费+蜜月赠烛光晚餐+可订鲁滨逊努努岛/库拉玛提岛/阿雅达岛/神仙珊瑚岛/奥臻岛/莫凡彼岛/伊露薇莉岛/奥静岛/中央格兰德岛）
+                  </div>
+                  <div>
+                      <span style="color: #ff7800" class="hj_price">￥1200</span> <span style="color: #999;font-size: 0.6rem">起</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-50">
+                <div class="hj_list hj_flex_coloum">
+                  <div class="img_wrap">
+                    <img src="__TMPL__/assets/img/l2.jpeg" alt="">
+                  </div>
+                  <div class="hj_title hj_ellipsis_2">
+                    金卡最高立减500+畅享一价全包·上海往返马尔代夫鲁滨逊努努岛7天5晚自由行（水屋带私人泳池+精彩晚会DJ表演+全天托儿服务+锦鲤免费升级房型/水飞上岛+可订波杜希蒂/奥静/鲁滨逊/丽世/菲诺芙/神仙珊瑚/都喜天阙/阿雅达/莉莉岛/奥臻）
+                  </div>
+                  <div>
+                      <span style="color: #ff7800" class="hj_price">￥1200</span> <span style="color: #999;font-size: 0.6rem">起</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <include file="public/footer"/>
+    </div>
+  </div>
+
+<include file="public/scripts"/>
+  <script>
+    $(function () {
+      $(function () {
+        var mySwiper = new Swiper('.swiper-container', {
+          autoplay: {
+            delay: 2000,
+            stopOnLastSlide: false,
+            disableOnInteraction: true,
+          },
+          loop : true,
+          pagination: {
+            el: '.swiper-pagination',
+          },
+        })
+      });
+    });
+  </script>
+
+</body>
+
+</html>
